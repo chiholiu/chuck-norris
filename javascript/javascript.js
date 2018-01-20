@@ -40,7 +40,7 @@
 			
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
-					console.log(this.nextElementSibling.id);
+					console.log(this.id);
 					let $this = $(this),
 						i = $this.closest('li').index(),
 						$target = $(favorite);
@@ -60,9 +60,8 @@
 			        
 			        }
 			        var html = $(favorite).html();
-			        console.log(html);
+			        console.log(JSON.stringify(html));
 				})
-			
 			});
 		}
 	}

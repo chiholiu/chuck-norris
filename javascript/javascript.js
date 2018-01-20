@@ -56,11 +56,11 @@
 			        if ($targetLi.length) {
 			            $target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
 			        } else {
-			            $target.append($this.closest('li'));
-			        
+			            $target.append($this.closest('li'));		        
 			        }
 			        var html = $(favorite).html();
-			        console.log(JSON.stringify(html));
+			        console.log(this.id);
+			        console.log(this.parentNode.innerText);
 				})
 			});
 		}

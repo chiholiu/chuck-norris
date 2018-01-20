@@ -21,7 +21,7 @@
 			let result;
 			data.value.forEach((joke) => {
 				result +=
-				`<li><input type="checkbox"> User title : ${joke.joke}</li>
+				`<li><input type="checkbox"><span id='${joke.id}'></span>  User title :  ${joke.joke}</li>
 				`;
 				document.getElementById('list-of-jokes').innerHTML = result;
 				
@@ -30,33 +30,37 @@
 		}).catch((err)=>console.log(err))
 	}
 
-	function bindCheckbox() {
+	function bindCheckbox(event) {
 		let defaultList = document.getElementById('list-of-jokes');
 		let favorite = document.getElementById('favorites');
+		let elems = defaultList.childNodes;
+		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
 
-		let $elems = $(defaultList).children();
-		console.log($elems.length);
-		if( $elems.length > 0) {
+		if(elems.length > 0) {
 			console.log('loaded');
-			$("input[type=checkbox]").change(function () {
-	    	
-	    	let $this = $(this),
-	        i = $this.closest('li').index(),
-	        $target = $(favorite);
+			
+			inputCheckbox.forEach(function(element, index) {
+				inputCheckbox[index].addEventListener('change', function() {
+					console.log(this.nextElementSibling.id);
+					let $this = $(this),
+					i = $this.closest('li').index(),
+					$target = $(favorite);
+					if (!this.checked) {
+						$target = $(defaultList);
+	            		console.log('a');
+					} else {
+						console.log($this.data('idx', i));
+					}
 
-	        if (!this.checked) {
-	            $target = $(defaultList);
-	        } else {
-	            $this.data('idx', i);
-	        }
-
-	        let $targetLi = $target.find('li:eq(' + $this.data('idx') + ')');
-	        if ($targetLi.length) {
-	            $target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
-	        } else {
-	            $target.append($this.closest('li'));
-	        }
-		});
+					let $targetLi = $target.find('li:eq(' + $this.data('idx') + ')');
+  
+			        if ($targetLi.length) {
+			            $target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
+			        } else {
+			            $target.append($this.closest('li'));
+			        }
+				})
+			});
 		}
 	}
 })();

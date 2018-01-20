@@ -21,10 +21,9 @@
 			let result;
 			data.value.forEach((joke) => {
 				result +=
-				`<li><input type="checkbox"><span id='${joke.id}'></span>  User title :  ${joke.joke}</li>
+				`<li><input type="checkbox" id='${joke.id}'/> User title :  ${joke.joke}</li>
 				`;
 				document.getElementById('list-of-jokes').innerHTML = result;
-				
 			})
 			bindCheckbox();
 		}).catch((err)=>console.log(err))
@@ -43,8 +42,8 @@
 				inputCheckbox[index].addEventListener('change', function() {
 					console.log(this.nextElementSibling.id);
 					let $this = $(this),
-					i = $this.closest('li').index(),
-					$target = $(favorite);
+						i = $this.closest('li').index(),
+						$target = $(favorite);
 					if (!this.checked) {
 						$target = $(defaultList);
 	            		console.log('a');
@@ -58,8 +57,12 @@
 			            $target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
 			        } else {
 			            $target.append($this.closest('li'));
+			        
 			        }
+			        var html = $(favorite).html();
+			        console.log(html);
 				})
+			
 			});
 		}
 	}

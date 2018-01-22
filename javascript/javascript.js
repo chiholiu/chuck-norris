@@ -26,44 +26,64 @@
 				document.getElementById('list-of-jokes').innerHTML = result;
 			})
 			bindCheckbox();
-		}).catch((err)=>console.log(err))
+		}).catch((err) => console.log(err))
 	}
 
-	function bindCheckbox(event) {
-		let defaultList = document.getElementById('list-of-jokes');
-		let favorite = document.getElementById('favorites');
-		let elems = defaultList.childNodes;
+	function bindCheckbox() {
+		let elems = document.getElementById('list-of-jokes').childNodes;
 		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
-
-		if(elems.length > 0) {
-			console.log('loaded');
-			
+		 
+		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
-					console.log(this.id);
-					let $this = $(this),
-						i = $this.closest('li').index(),
-						$target = $(favorite);
+					let defaultList = document.getElementById('list-of-jokes');
+					let favorite = document.getElementById('favorites');
+					let $this = $(this);
+					let i = $this.closest('li').index();
+					let idNumber = this.id;
+				    let jokeText = this.parentNode.innerText,
+				    	$target;
+
 					if (!this.checked) {
 						$target = $(defaultList);
-	            		console.log('a');
 					} else {
-						console.log($this.data('idx', i));
+						$target = $(favorite);
+						$this.data('idx', i);
 					}
-
-					let $targetLi = $target.find('li:eq(' + $this.data('idx') + ')');
-  
-			        if ($targetLi.length) {
-			            $target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
-			        } else {
-			            $target.append($this.closest('li'));		        
-			        }
-			        var html = $(favorite).html();
-			        console.log(this.id);
-			        console.log(this.parentNode.innerText);
-				})
+					toggleList(idNumber, jokeText, $target, $this);
+				});
 			});
 		}
+ 	}
+
+ 	function toggleList(idNumber, jokeText, $target, $this) {
+ 		let favoriteStored = JSON.parse(localStorage.getItem('allJoke')) || [];
+ 		let $targetLi = $target.find('li:eq(' + $this.data('idx') + ')');	
+
+		if ($targetLi.length) {
+			$target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
+		} else {
+			$target.append($this.closest('li'));		 
+		// console.log('jokes');   
+		}
+		addStorage(idNumber, jokeText, favoriteStored);
+ 	}
+
+	function addStorage(idNumber, jokeText, favoriteStored) {
+		let norrisJoke = { 
+			id: idNumber, 
+			joke:  jokeText 
+		};
+		let localStorageLength = favoriteStored.length;
+		
+		favoriteStored.push(norrisJoke);
+		localStorage.setItem('allJoke', JSON.stringify(favoriteStored));
+
+	   	for(var i = 0; i < localStorage.length; i++) {
+	   		if(localStorageLength >= 11) {
+	   		}
+	   	}	        
 	}
+
 })();
 

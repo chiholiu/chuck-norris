@@ -38,3 +38,5 @@ button {
 	margin-left: auto;
 	margin-right: auto;
 }
+
+$targetLi = target.find('li:eq(' + $this.data('idx') + ')'),

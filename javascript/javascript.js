@@ -9,8 +9,6 @@
 	
 	// fetch data from api
 	function getData() {
-
-		
 		fetch('https://api.icndb.com/jokes/random/10')
 		.then(function(res) {
 			return res.json() 
@@ -30,6 +28,7 @@
 	}
 
 
+
 	function bindCheckbox() {
 		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
 		let elems = document.getElementById('list-of-jokes').childNodes;
@@ -38,32 +37,48 @@
 		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
+					let fav = JSON.parse(localStorage.getItem('favoList'));
 					let joke = this;
 					if(joke.checked && joke.parentNode.parentNode.id === 'list-of-jokes') { 
 					   joke.checked = false;
+					   addFavorite(joke.id, joke.parentNode.innerText);
 					   favoriteList.appendChild(joke.parentNode);
 					} 
 					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
-					   removeItem(joke);
+					   console.log(joke.id);
+					   console.log(joke.parentNode.innerText);
+					   removeFavorite(joke);
 					}
 				});
 			});
 		}
 	}
 
-	function removeItem(favorite) {
+	function removeFavorite(favorite) {
 		let favoriteCheckBox = favorite;
-		let favoriteListItem = favoriteCheckBox.parentNode; 
+		let favoriteListItem = favoriteCheckBox.parentNode;  b 
 		console.log(favoriteListItem);
 		favoriteListItem.remove();
-		localStorage.setItem('favoList', favoriteListItem); 
+		localStorage.setItem('favoList', bob); 
 	}
 
 	// store favorites in localStorage
-	let favoriteList = [];
+	function addFavorite(idNum, jokeText) {
+		let favoriteStorage = [];
+		let norrisJoke = {
+			id: idNum,
+			joke: jokeText
+		};
+		console.log(idNum, jokeText);
 
-	if(localStorage.getItem('favoList') != undefined) {
-		favoriteList = JSON.parse(localStorage.getItem('favoList'));
+		favoriteStorage.push(norrisJoke);
+		localStorage.setItem('favoList', favoriteStorage);
+		console.log(favoriteStorage);
+
+		// if(localStorage.getItem('favoList') != undefined) {
+		// 	favoriteList = JSON.parse(localStorage.getItem('favoList'));
+		// }
 	}
+	
 })();
 

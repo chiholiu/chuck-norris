@@ -3,22 +3,20 @@
 
 	const getJokesButton = document.getElementById('getData');
 	getJokesButton.addEventListener('click', getData);
+
+	let incompleteTasksHolder = document.getElementById("list-of-jokes"); //incomplete-tasks
+	let completedTasksHolder = document.getElementById("favorites"); //completed-tasks
 	
 	// fetch data from api
 	function getData() {
-		fetch('http://api.icndb.com/jokes/random/10')
-		.then(function(res) {
-			return res.json()
-		}).then(function(data) {
-			console.log(data.value);
-		}).catch(function(err) {
-			console.log(err)
-		})
+
 		
 		fetch('https://api.icndb.com/jokes/random/10')
-		.then(res => res.json() )
-		.then(data => { 
+		.then(function(res) {
+			return res.json() 
+		}).then(function(data) { 
 			let result;
+			console.log(data.value);
 			data.value.forEach((joke) => {
 				result +=
 				`<li><input type="checkbox" id='${joke.id}'/> User title :  ${joke.joke}</li>
@@ -26,64 +24,46 @@
 				document.getElementById('list-of-jokes').innerHTML = result;
 			})
 			bindCheckbox();
-		}).catch((err) => console.log(err))
+		}).catch(function(err) {
+			console.log(err)
+		})
 	}
 
+
 	function bindCheckbox() {
-		let elems = document.getElementById('list-of-jokes').childNodes;
 		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
-		 
+		let elems = document.getElementById('list-of-jokes').childNodes;
+		let favoriteList = document.getElementById('favorites');
+
 		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
-					let defaultList = document.getElementById('list-of-jokes');
-					let favorite = document.getElementById('favorites');
-					let $this = $(this);
-					let i = $this.closest('li').index();
-					let idNumber = this.id;
-				    let jokeText = this.parentNode.innerText,
-				    	$target;
-
-					if (!this.checked) {
-						$target = $(defaultList);
-					} else {
-						$target = $(favorite);
-						$this.data('idx', i);
+					let joke = this;
+					if(joke.checked && joke.parentNode.parentNode.id === 'list-of-jokes') { 
+					   joke.checked = false;
+					   favoriteList.appendChild(joke.parentNode);
+					} 
+					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
+					   removeItem(joke);
 					}
-					toggleList(idNumber, jokeText, $target, $this);
 				});
 			});
 		}
- 	}
-
- 	function toggleList(idNumber, jokeText, $target, $this) {
- 		let favoriteStored = JSON.parse(localStorage.getItem('allJoke')) || [];
- 		let $targetLi = $target.find('li:eq(' + $this.data('idx') + ')');	
-
-		if ($targetLi.length) {
-			$target.find('li:eq(' + $this.data('idx') + ')').before($this.closest('li'));
-		} else {
-			$target.append($this.closest('li'));		 
-		// console.log('jokes');   
-		}
-		addStorage(idNumber, jokeText, favoriteStored);
- 	}
-
-	function addStorage(idNumber, jokeText, favoriteStored) {
-		let norrisJoke = { 
-			id: idNumber, 
-			joke:  jokeText 
-		};
-		let localStorageLength = favoriteStored.length;
-		
-		favoriteStored.push(norrisJoke);
-		localStorage.setItem('allJoke', JSON.stringify(favoriteStored));
-
-	   	for(var i = 0; i < localStorage.length; i++) {
-	   		if(localStorageLength >= 11) {
-	   		}
-	   	}	        
 	}
 
+	function removeItem(favorite) {
+		let favoriteCheckBox = favorite;
+		let favoriteListItem = favoriteCheckBox.parentNode; 
+		console.log(favoriteListItem);
+		favoriteListItem.remove();
+		localStorage.setItem('favoList', favoriteListItem); 
+	}
+
+	// store favorites in localStorage
+	let favoriteList = [];
+
+	if(localStorage.getItem('favoList') != undefined) {
+		favoriteList = JSON.parse(localStorage.getItem('favoList'));
+	}
 })();
 

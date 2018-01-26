@@ -1,4 +1,4 @@
-(function() {
+ (function() {
 	"use strict";
 
 	const getJokesButton = document.getElementById('getData');
@@ -27,9 +27,7 @@
 		})
 	}
 
-
-
-	function bindCheckbox() {
+	function bindCheckbox(fav) {
 		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
 		let elems = document.getElementById('list-of-jokes').childNodes;
 		let favoriteList = document.getElementById('favorites');
@@ -37,12 +35,12 @@
 		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
-					let fav = JSON.parse(localStorage.getItem('favoList'));
+					let fav = JSON.parse(localStorage.getItem('favoList'))|| [];
 					let joke = this;
 					if(joke.checked && joke.parentNode.parentNode.id === 'list-of-jokes') { 
 					   joke.checked = false;
-					   addFavorite(joke.id, joke.parentNode.innerText);
 					   favoriteList.appendChild(joke.parentNode);
+					   addFavorite(joke.id, joke.parentNode.innerText, fav);
 					} 
 					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
 					   console.log(joke.id);
@@ -56,29 +54,21 @@
 
 	function removeFavorite(favorite) {
 		let favoriteCheckBox = favorite;
-		let favoriteListItem = favoriteCheckBox.parentNode;  b 
+		let favoriteListItem = favoriteCheckBox.parentNode; 
 		console.log(favoriteListItem);
 		favoriteListItem.remove();
-		localStorage.setItem('favoList', bob); 
+		// localStorage.setItem('favoList', b); 
 	}
 
 	// store favorites in localStorage
-	function addFavorite(idNum, jokeText) {
-		let favoriteStorage = [];
+	function addFavorite(jokeId, jokeText, fav) {
 		let norrisJoke = {
-			id: idNum,
+			id: jokeId,
 			joke: jokeText
 		};
-		console.log(idNum, jokeText);
-
-		favoriteStorage.push(norrisJoke);
-		localStorage.setItem('favoList', favoriteStorage);
-		console.log(favoriteStorage);
-
-		// if(localStorage.getItem('favoList') != undefined) {
-		// 	favoriteList = JSON.parse(localStorage.getItem('favoList'));
-		// }
+		let favorites = fav;
+		favorites.push(norrisJoke);
+		localStorage.setItem('favoList', JSON.stringify(favorites));
 	}
-	
 })();
 

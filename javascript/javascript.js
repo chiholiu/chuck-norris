@@ -1,4 +1,4 @@
-(function() {
+ (function() {
 	"use strict";
 
 	const getJokesButton = document.getElementById('getData');
@@ -9,8 +9,6 @@
 	
 	// fetch data from api
 	function getData() {
-
-		
 		fetch('https://api.icndb.com/jokes/random/10')
 		.then(function(res) {
 			return res.json() 
@@ -29,8 +27,7 @@
 		})
 	}
 
-
-	function bindCheckbox() {
+	function bindCheckbox(fav) {
 		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
 		let elems = document.getElementById('list-of-jokes').childNodes;
 		let favoriteList = document.getElementById('favorites');
@@ -38,32 +35,40 @@
 		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
+					let fav = JSON.parse(localStorage.getItem('favoList'))|| [];
 					let joke = this;
 					if(joke.checked && joke.parentNode.parentNode.id === 'list-of-jokes') { 
 					   joke.checked = false;
 					   favoriteList.appendChild(joke.parentNode);
+					   addFavorite(joke.id, joke.parentNode.innerText, fav);
 					} 
 					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
-					   removeItem(joke);
+					   console.log(joke.id);
+					   console.log(joke.parentNode.innerText);
+					   removeFavorite(joke);
 					}
 				});
 			});
 		}
 	}
 
-	function removeItem(favorite) {
+	function removeFavorite(favorite) {
 		let favoriteCheckBox = favorite;
 		let favoriteListItem = favoriteCheckBox.parentNode; 
 		console.log(favoriteListItem);
 		favoriteListItem.remove();
-		localStorage.setItem('favoList', favoriteListItem); 
+		// localStorage.setItem('favoList', b); 
 	}
 
 	// store favorites in localStorage
-	let favoriteList = [];
-
-	if(localStorage.getItem('favoList') != undefined) {
-		favoriteList = JSON.parse(localStorage.getItem('favoList'));
+	function addFavorite(jokeId, jokeText, fav) {
+		let norrisJoke = {
+			id: jokeId,
+			joke: jokeText
+		};
+		let favorites = fav;
+		favorites.push(norrisJoke);
+		localStorage.setItem('favoList', JSON.stringify(favorites));
 	}
 })();
 

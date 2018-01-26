@@ -68,6 +68,7 @@
 		};
 		let favorites = fav;
 		favorites.push(norrisJoke);
+		// always get the object before the push method and pass it into stringify
 		localStorage.setItem('favoList', JSON.stringify(favorites));
 	}
 })();

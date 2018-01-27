@@ -53,8 +53,9 @@
 	function removeFavorite(favorite, index, fav) {
 		let favoriteCheckBox = favorite;
 		let i = index;
+
+		// convert iterable object to an array, otherwise splice method would give an error.
 		let favoriteListItem = Array.from(favoriteCheckBox.parentNode); 
-		console.log(typeof favoriteListItem);
 		favoriteListItem.splice(i, 1);
 		localStorage.setItem('favoList',JSON.stringify(favoriteListItem)); 
 	}

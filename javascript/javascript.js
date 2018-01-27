@@ -43,21 +43,20 @@
 					   addFavorite(joke.id, joke.parentNode.innerText, fav);
 					} 
 					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
-					   console.log(joke.id);
-					   console.log(joke.parentNode.innerText);
-					   removeFavorite(joke);
+					   removeFavorite(joke, index, fav);
 					}
 				});
 			});
 		}
 	}
 
-	function removeFavorite(favorite) {
+	function removeFavorite(favorite, index, fav) {
 		let favoriteCheckBox = favorite;
-		let favoriteListItem = favoriteCheckBox.parentNode; 
-		console.log(favoriteListItem);
-		favoriteListItem.remove();
-		// localStorage.setItem('favoList', b); 
+		let i = index;
+		let favoriteListItem = Array.from(favoriteCheckBox.parentNode); 
+		console.log(typeof favoriteListItem);
+		favoriteListItem.splice(i, 1);
+		localStorage.setItem('favoList',JSON.stringify(favoriteListItem)); 
 	}
 
 	// store favorites in localStorage
@@ -68,6 +67,7 @@
 		};
 		let favorites = fav;
 		favorites.push(norrisJoke);
+
 		// always get the object before the push method and pass it into stringify
 		localStorage.setItem('favoList', JSON.stringify(favorites));
 	}

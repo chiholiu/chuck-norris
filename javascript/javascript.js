@@ -1,11 +1,28 @@
  (function() {
 	"use strict";
-
+		
 	const getJokesButton = document.getElementById('getData');
 	getJokesButton.addEventListener('click', getData);
 
-	let incompleteTasksHolder = document.getElementById("list-of-jokes"); //incomplete-tasks
-	let completedTasksHolder = document.getElementById("favorites"); //completed-tasks
+	let listOfJokes = document.getElementById("list-of-jokes"); 
+	let listOfFavorites = document.getElementById("favorites");
+
+	function loadLocalStorage() {
+		let storage = JSON.parse(localStorage.getItem('favoList')) || [];
+		let emptyArray = '';
+		if(storage.length > 0) {
+			for(var i = 0; i < storage.length; i++) {
+				emptyArray += 
+				`<li><input type="checkbox" id='${storage[i].id}'/> User title: ${storage[i].joke}</li>`;
+				console.log(storage[i]);
+				listOfFavorites.innerHTML = emptyArray;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	loadLocalStorage();
 	
 	// fetch data from api
 	function getData() {
@@ -13,13 +30,14 @@
 		.then(function(res) {
 			return res.json() 
 		}).then(function(data) { 
-			let result;
+			// variable is undefined because it is not initialized. Therefore at some empty single quotes
+			let result = '';
 			console.log(data.value);
 			data.value.forEach((joke) => {
 				result +=
 				`<li><input type="checkbox" id='${joke.id}'/> User title :  ${joke.joke}</li>
 				`;
-				document.getElementById('list-of-jokes').innerHTML = result;
+				listOfJokes.innerHTML = result;
 			})
 			bindCheckbox();
 		}).catch(function(err) {
@@ -27,15 +45,21 @@
 		})
 	}
 
-	function bindCheckbox(fav) {
+	function clickedButton() {
+		getJokesButton.setAttribute('disabled', 'disabled');
+		getJokesButton.classList.add('opacity');
+	}
+
+	function bindCheckbox() {
 		let inputCheckbox = document.querySelectorAll('input[type=checkbox]');
 		let elems = document.getElementById('list-of-jokes').childNodes;
 		let favoriteList = document.getElementById('favorites');
+		let fav = JSON.parse(localStorage.getItem('favoList'))|| [];
 
 		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
-					let fav = JSON.parse(localStorage.getItem('favoList'))|| [];
+					
 					let joke = this;
 					if(joke.checked && joke.parentNode.parentNode.id === 'list-of-jokes') { 
 					   joke.checked = false;
@@ -43,23 +67,25 @@
 					   addFavorite(joke.id, joke.parentNode.innerText, fav);
 					} 
 					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
+					   joke.checked = false;
 					   removeFavorite(joke, index, fav);
 					}
 				});
 			});
 		}
+		clickedButton();
 	}
 
 	function removeFavorite(favorite, index, fav) {
 		let favoriteCheckBox = favorite;
 		let i = index;
 
-		// convert iterable object to an array, otherwise splice method would give an error.
+		// convert iterable object to an array, otherwise splice metho d would give an error.
 		let favoriteListItem = Array.from(favoriteCheckBox.parentNode); 
 		favoriteListItem.splice(i, 1);
-		localStorage.setItem('favoList',JSON.stringify(favoriteListItem)); 
+		document.getElementById('list-of-jokes').appendChild(favorite.parentNode);
+		localStorage.setItem('favoList', JSON.stringify(favoriteListItem));
 	}
-
 	// store favorites in localStorage
 	function addFavorite(jokeId, jokeText, fav) {
 		let norrisJoke = {
@@ -71,6 +97,11 @@
 
 		// always get the object before the push method and pass it into stringify
 		localStorage.setItem('favoList', JSON.stringify(favorites));
+	}
+
+	function autoAdd() {
+		// every 5 seconds add random joke to favorite
+		// has the function to turn off and on
 	}
 })();
 

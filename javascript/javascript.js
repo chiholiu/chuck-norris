@@ -4,45 +4,44 @@
 	const getJokesButton = document.getElementById('getData');
 	getJokesButton.addEventListener('click', getData);
 
-	let listOfJokes = document.getElementById("list-of-jokes"); 
-	let listOfFavorites = document.getElementById("favorites");
+	loadLocalStorage();
 
 	function loadLocalStorage() {
 		let storage = JSON.parse(localStorage.getItem('favoList')) || [];
+		let listOfFavorites = document.getElementById("favorites");
 		let emptyArray = '';
 		if(storage.length > 0) {
 			for(var i = 0; i < storage.length; i++) {
+				let idNumberJoke = storage[i].id;
 				emptyArray += 
-				`<li><input type="checkbox" id='${storage[i].id}'/> User title: ${storage[i].joke}</li>`;
-				console.log(storage[i]);
+				`<li><input type="checkbox" id='${idNumberJoke}'/> User title: ${storage[i].joke}</li>`;
 				listOfFavorites.innerHTML = emptyArray;
 			}
 		} else {
 			return false;
 		}
 	}
-
-	loadLocalStorage();
 	
 	// fetch data from api
 	function getData() {
+		let listOfJokes = document.getElementById("list-of-jokes"); 
+
 		fetch('https://api.icndb.com/jokes/random/10')
 		.then(function(res) {
-			return res.json() 
+			return res.json();
 		}).then(function(data) { 
 			// variable is undefined because it is not initialized. Therefore at some empty single quotes
 			let result = '';
 			console.log(data.value);
 			data.value.forEach((joke) => {
 				result +=
-				`<li><input type="checkbox" id='${joke.id}'/> User title :  ${joke.joke}</li>
-				`;
+				`<li><input type="checkbox" class='inputCheckbox' id='${joke.id}'/> User title :  ${joke.joke}</li>`;
 				listOfJokes.innerHTML = result;
-			})
+			});
 			bindCheckbox();
 		}).catch(function(err) {
-			console.log(err)
-		})
+			console.log(err);
+		});
 	}
 
 	function clickedButton() {
@@ -59,7 +58,6 @@
 		if(elems.length > 0) {	
 			inputCheckbox.forEach(function(element, index) {
 				inputCheckbox[index].addEventListener('change', function() {
-					
 					let joke = this;
 					if(joke.checked && joke.parentNode.parentNode.id === 'list-of-jokes') { 
 					   joke.checked = false;
@@ -86,6 +84,7 @@
 		document.getElementById('list-of-jokes').appendChild(favorite.parentNode);
 		localStorage.setItem('favoList', JSON.stringify(favoriteListItem));
 	}
+
 	// store favorites in localStorage
 	function addFavorite(jokeId, jokeText, fav) {
 		let norrisJoke = {
@@ -94,14 +93,8 @@
 		};
 		let favorites = fav;
 		favorites.push(norrisJoke);
-
 		// always get the object before the push method and pass it into stringify
 		localStorage.setItem('favoList', JSON.stringify(favorites));
 	}
 
-	function autoAdd() {
-		// every 5 seconds add random joke to favorite
-		// has the function to turn off and on
-	}
 })();
-

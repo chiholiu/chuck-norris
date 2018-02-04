@@ -92,7 +92,6 @@
 			joke: jokeText
 		};
 		let favorites = fav;
-		let pushToFav = false;
 
 		// which is necessarily to remove the first empty array by using the reduce function
 		const favIds = favorites.reduce((sum, element) => {
@@ -103,10 +102,7 @@
 		if(favorites.length < 10 && !(favIds.includes(jokeId))) {
 			favorites.push(norrisJoke);
 			console.log(favorites.length);
-			return false;
-		} else {
-			favorites.push();
-		}
+		} 
 
 		// always get the object before the push method and pass it into stringify
 		localStorage.setItem('favoList', JSON.stringify(favorites));

@@ -11,7 +11,7 @@
 		let listOfFavorites = document.getElementById("favorites");
 		let emptyArray = '';
 		if(storage.length > 0) {
-			for(var i = 0; i < storage.length; i++) {
+			for(let i = 0; i < storage.length; i++) {
 				let idNumberJoke = storage[i].id;
 				emptyArray += 
 				`<li><input type="checkbox" id='${idNumberJoke}'/> User title: ${storage[i].joke}</li>`;
@@ -66,7 +66,7 @@
 					} 
 					if(joke.checked && joke.parentNode.parentNode.id === 'favorites') {
 					   joke.checked = false;
-					   removeFavorite(joke, index, fav);
+					   removeFavorite(joke, index);
 					}
 				});
 			});
@@ -74,7 +74,7 @@
 		clickedButton();
 	}
 
-	function removeFavorite(favorite, index, fav) {
+	function removeFavorite(favorite, index) {
 		let favoriteCheckBox = favorite;
 		let i = index;
 
@@ -92,9 +92,23 @@
 			joke: jokeText
 		};
 		let favorites = fav;
-		favorites.push(norrisJoke);
+		let pushToFav = false;
+
+		// which is necessarily to remove the first empty array by using the reduce function
+		const favIds = favorites.reduce((sum, element) => {
+			return sum.concat(element.id);
+			},
+		[]);
+
+		if(favorites.length < 10 && !(favIds.includes(jokeId))) {
+			favorites.push(norrisJoke);
+			console.log(favorites.length);
+			return false;
+		} else {
+			favorites.push();
+		}
+
 		// always get the object before the push method and pass it into stringify
 		localStorage.setItem('favoList', JSON.stringify(favorites));
-	}
-
+	}	
 })();

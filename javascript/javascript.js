@@ -1,27 +1,28 @@
- (function() {
+(function() {
 	"use strict";
 
 	const getJokesButton = document.getElementById('getData');
 	getJokesButton.addEventListener('click', getData);
-	let favoriteJokes = document.getElementById('favorites');
-	let listOfJokes = document.getElementById("list-of-jokes"); 
 
 	// add to empty array before it will be pushed into localStorage
 	let favorite = [];
 
 	function displayFavorites() {
+		let favoriteJokes = document.getElementById('favorites');
 		let favoriteArray = listFavorite();
-		let listOfFavorites = document.getElementById('favorites');
 		let output = "";
+
 		for (let i in favoriteArray) {
-			output += `<li><input type="checkbox" id=${favoriteArray[i].jokeId}'/> User title: ${favoriteArray[i].jokeText}<input type="button" class="delete" value="Click Me"></li>`;
+			output += `<li><input type='button' class='delete' id='${favoriteArray[i].id}' value='remove'/></span> User title: ${favoriteArray[i].joke}</li>`;
 		}
-		listOfFavorites.innerHTML = output;
-		bindCheckBoxFavJoke(listOfFavorites.children);
+		favoriteJokes.innerHTML = output;
+		bindCheckBoxFavJoke(favoriteJokes.children);
 	}
 
     // fetch data from api
 	function getData() {
+		let listOfJokes = document.getElementById("list-of-jokes"); 
+
 		fetch('https://api.icndb.com/jokes/random/10')
 			.then(function(res) {
 				return res.json();
@@ -31,7 +32,7 @@
 			console.log(data.value);
 			data.value.forEach((joke, index) => {
 				result +=
-				`<li><input type="checkbox" class='inputCheckbox' id='${joke.id}'/> User title :  ${joke.joke}<input type="button" class="delete" value="Click Me"></li>`;
+				`<li><input type="checkbox" class='inputCheckbox' id='${joke.id}'/> User title :  ${joke.joke}</li>`;
 				listOfJokes.innerHTML = result;
 			});
 			bindCheckboxJoke(listOfJokes.children);
@@ -46,37 +47,39 @@
 	}
 
 	function bindCheckboxJoke(listOfJokes) {
-		console.log(listOfJokes.length);
 		for(let i = 0; i < listOfJokes.length; i++) {
-			bindEventListeners(listOfJokes[i], addFavorite);
-		}
+			bindJokes(listOfJokes[i], addFavorite);
+		} 
 	}
 
-	function bindCheckBoxFavJoke(listOfFavorites) {
-		for (let i = 0; favoriteJokes.length; i++) {
-			bindEventListeners(favoriteJokes[i], removeFavorite);
-		}
+	function bindCheckBoxFavJoke(favoriteJokes) {
+		for (let i = 0; i < favoriteJokes.length; i++) {
+			bindFavoriteJokes(favoriteJokes[i], removeFavorite);
+		} 	 
 	}
 	
-	let bindEventListeners = function(jokeItem, checkBoxEventHandler) {
+	let bindJokes = function(jokeItem, checkBoxEventHandler) {
 		let checkbox = jokeItem.querySelector('input[type="checkbox"]');
-		let deleteButton = jokeItem.querySelector('.delete');
-		
-		checkbox.onchange = addFavorite;
-		deleteButton.onchange = console.log('hello');
+		checkbox.addEventListener('change', addFavorite);
+		getCheckboxes(checkbox);
+	}
 
+	let bindFavoriteJokes = function(jokeItem, checkBoxEventHandler) {
+		let deleteButton = jokeItem.querySelector('.delete');
+		deleteButton.addEventListener('click', removeFavorite);
 	}
 
 	let addFavorite = function() {
+		console.log(this);
 		let id = this.id;
+		console.log()
 		let joke = this.parentNode.innerText;
 		this.disabled = true;
 		addJokeToFavorite(id, joke);
 	}
 
 	let removeFavorite = function() {
-
-		let id = this.parentNode;
+		let id = this.id;
 		let inputButton = this.parentNode.firstChild;
 		inputButton.checked = false;
 		inputButton.disabled = false;
@@ -84,15 +87,15 @@
 	}
 
 	let Item = function(jokeId, jokeText) {
-		this.jokeId = jokeId
-		this.jokeText = jokeText
-	};
+		this.id = jokeId;
+		this.joke = jokeText;
+	}
 
 	function addJokeToFavorite(id, joke) {
 		// check duplicates by iterating 
 		for (let i in favorite) {
-			if(favorite[i].id === id || favorite.length > 10) {
-				console.log('stop');
+			if(favorite.length < 5 || favorite[i].id !== id  ) {
+				console.log('nothing happen');
 				break;
 			}
 		}
@@ -132,7 +135,7 @@
 			favoriteCopy.push(jokesCopy);
 		}
 		return favoriteCopy;
-	}
+	}		
 
 	function saveFavorite() {
 		localStorage.setItem('favoList', JSON.stringify(favorite));
@@ -145,5 +148,49 @@
 	// You have to load the JSOn of course before 
 	loadFavorites();
 	displayFavorites();
-	
+
+	let start = document.getElementById('start');
+	let stop = document.getElementById('stop');
+	let pause = false;
+
+	start.addEventListener('click', autoAddStart);
+	stop.addEventListener('click', autoAddStop);
+
+	function autoAddStart() {
+		pause = true;
+		console.log('start');
+		lemon();
+	}
+
+	function autoAddStop() {
+		pause = false;
+		console.log('stop');
+	}
+
+	// create new item so it would not iterate constantly like add 1, 1 and 2, 1, 2 and 3 and so on
+	let RandomAdd = function(id) {
+		this.id = id;
+	}
+
+	// in order to avoid resetting, you need to put the varia
+	let array = [];
+
+	function getCheckboxes(checkbox) {
+		let addRandomCheckbox = new RandomAdd(checkbox);
+		array.push(addRandomCheckbox);
+	}
+
+	function lemon() {
+		let randomNumber = Math.floor(Math.random() * Math.floor(array.length));
+		// for(let i = 0; i < array.length; i++) {
+		// 	array[randomNumber].checked = true;
+		// }
+
+		for(let i = 0; i < array.length; i++) {
+			console.log(array[i].id);
+		}
+		array[1].id.checked = true;
+		
+	}	
+
 })();

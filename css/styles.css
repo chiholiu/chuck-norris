@@ -8,6 +8,11 @@ body {
 .unordered-list {
 	padding: 0;
 }
+.autoAdd {
+	border: 1px solid red;
+	width: 100px;
+	padding: 10px;
+}
 .inner-block {
 	padding: 20px;
 }

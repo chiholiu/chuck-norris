@@ -70,9 +70,7 @@
 	}
 
 	let addFavorite = function() {
-		console.log(this);
 		let id = this.id;
-		console.log()
 		let joke = this.parentNode.innerText;
 		this.disabled = true;
 		addJokeToFavorite(id, joke);
@@ -102,7 +100,7 @@
 
 		let norrisJoke = new Item(id, joke);
 
-		if(favorite == null) {
+		if(favorite === null) {
     		favorite = [];
 		}
 
@@ -156,15 +154,16 @@
 	start.addEventListener('click', autoAddStart);
 	stop.addEventListener('click', autoAddStop);
 
+	let interval;
+
 	function autoAddStart() {
-		pause = true;
-		console.log('start');
-		lemon();
+		interval = setInterval(autoRandom, 1000);	
+		return false;
 	}
 
 	function autoAddStop() {
-		pause = false;
-		console.log('stop');
+		clearInterval(interval);
+		return false;
 	}
 
 	// create new item so it would not iterate constantly like add 1, 1 and 2, 1, 2 and 3 and so on
@@ -180,17 +179,20 @@
 		array.push(addRandomCheckbox);
 	}
 
-	function lemon() {
+	function autoRandom() {
 		let randomNumber = Math.floor(Math.random() * Math.floor(array.length));
-		// for(let i = 0; i < array.length; i++) {
-		// 	array[randomNumber].checked = true;
-		// }
+		let randomJoke = array[randomNumber].id.id;
+   		let jokeElement = document.getElementById(randomJoke);
+   		let index = array.indexOf(array[randomNumber]);
+   		console.log(array.length);
 
-		for(let i = 0; i < array.length; i++) {
-			console.log(array[i].id);
-		}
-		array[1].id.checked = true;
-		
+   		if(array.length <= 1) {
+   			autoAddStop();
+   		}
+   		
+   		array.splice(index, 1);
+   		jokeElement.click();
+
 	}	
 
 })();

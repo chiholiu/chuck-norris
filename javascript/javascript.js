@@ -3,6 +3,7 @@
 
 	const getJokesButton = document.getElementById('getData');
 	getJokesButton.addEventListener('click', getData);
+	let listOfJokes = document.getElementById("list-of-jokes"); 
 
 	// add to empty array before it will be pushed into localStorage
 	let favorite = [];
@@ -21,8 +22,6 @@
 
     // fetch data from api
 	function getData() {
-		let listOfJokes = document.getElementById("list-of-jokes"); 
-
 		fetch('https://api.icndb.com/jokes/random/10')
 			.then(function(res) {
 				return res.json();
@@ -36,6 +35,7 @@
 				listOfJokes.innerHTML = result;
 			});
 			bindCheckboxJoke(listOfJokes.children);
+			loadButtons();
 		}).catch(function(err) {
 			console.log(err);
 		});
@@ -73,6 +73,9 @@
 		let id = this.id;
 		let joke = this.parentNode.innerText;
 		this.disabled = true;
+		if(favorite === null) {
+			favorite = [];
+		}
 		addJokeToFavorite(id, joke);
 	}
 
@@ -90,23 +93,32 @@
 	}
 
 	function addJokeToFavorite(id, joke) {
-		// check duplicates by iterating 
-		for (let i in favorite) {
-			if(favorite.length < 5 || favorite[i].id !== id  ) {
-				console.log('nothing happen');
-				break;
-			}
-		}
-
 		let norrisJoke = new Item(id, joke);
+		// because it starts with null by default, you will loop through an empty list
+		const favIds = favorite.reduce((sum, element) => { 
+		        return sum.concat(element.id);
+		    }, 
+		[]);
 
-		if(favorite === null) {
-    		favorite = [];
+		if(favorite.length < 10 && !favIds.includes(id)) {
+			favorite.push(norrisJoke);
+		} else {
+			disableAllInputs();
+			console.log('id is the same and/ or length is bigger than 5');
+			return false;
 		}
-
-		favorite.push(norrisJoke);
 		saveFavorite();
 		displayFavorites();
+	}
+
+	function disableAllInputs() {
+		let inputs = listOfJokes.querySelectorAll("input:not(:checked)");
+		
+		for (let i = 0; i < inputs.length; i++) {
+			if(inputs[i].disabled == false) {
+				inputs[i].disabled = true;
+			}
+		}
 	}
 
 	function removeJokeFromFavorite(id) {
@@ -151,13 +163,16 @@
 	let stop = document.getElementById('stop');
 	let pause = false;
 
-	start.addEventListener('click', autoAddStart);
-	stop.addEventListener('click', autoAddStop);
-
+	function loadButtons() {
+		start.addEventListener('click', autoAddStart);
+		stop.addEventListener('click', autoAddStop);
+	}
+	
 	let interval;
+	let speed = 1000; // speed of auto check 
 
 	function autoAddStart() {
-		interval = setInterval(autoRandom, 1000);	
+		interval = setInterval(autoRandom, speed);	
 		return false;
 	}
 
@@ -184,7 +199,6 @@
 		let randomJoke = array[randomNumber].id.id;
    		let jokeElement = document.getElementById(randomJoke);
    		let index = array.indexOf(array[randomNumber]);
-   		console.log(array.length);
 
    		if(array.length <= 1) {
    			autoAddStop();

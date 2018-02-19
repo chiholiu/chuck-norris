@@ -206,7 +206,6 @@
    		
    		array.splice(index, 1);
    		jokeElement.click();
-
 	}	
 
 })();

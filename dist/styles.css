@@ -1,0 +1,39 @@
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+  font-size: 14px; }
+  body .unordered-list {
+    padding: 0; }
+  body .autoAdd {
+    width: 100px;
+    padding: 10px; }
+  body .inner-block {
+    padding: 20px; }
+  body ul li {
+    list-style-type: none;
+    border: 1px solid black;
+    padding: 10px;
+    margin-bottom: 5px; }
+  body ul .list-items-jokes {
+    border: 1px solid black;
+    height: 80px; }
+  body button {
+    border: 1px solid black;
+    width: 300px;
+    background-color: black;
+    color: white;
+    font-size: 16px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto; }
+  body .inner-body {
+    border: 1px solid black;
+    width: 90%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto; }
+  body .opacity {
+    opacity: 0.5; }
+

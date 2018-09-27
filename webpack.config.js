@@ -41,3 +41,5 @@ module.exports = {
         })
     ]
 };
+
+// console.log('listOfJokes ' + listOfJokes.length + ' favoriteJokes ' + favoriteJokes.length);

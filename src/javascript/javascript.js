@@ -2,17 +2,14 @@
 	"use strict";
 
 	let listOfJokes = document.getElementById("list-of-jokes"); 
+	let favoriteJokes = document.getElementById('favorites');
 	let favorite = [];
+	let favoriteArray;
 
 	function ChuckNorris() {
 		// add to empty array before it will be pushed into localStorage
 		this.init = function() {
 			addEventListeners();
-		}
-
-		let addEventListeners = function() {
-			const getJokesButton = document.getElementById('getData');
-			getJokesButton.addEventListener('click', getData);
 		}
 
 		// fetch data from api
@@ -22,65 +19,72 @@
 					return res.json();
 			}).then(function(data) { 
 				// variable is undefined because it is not initialized. Therefore at some empty single quotes
-				let result = '';
-				console.log(data.value);
-				data.value.forEach((joke, index) => {
-					result +=
-					`<li><input type="checkbox" class='inputCheckbox' id='${joke.id}'/> User title :  ${joke.joke}</li>`;
-					listOfJokes.innerHTML = result;
-				});
-				bindCheckboxJoke(listOfJokes.children);
-				loadButtons();
+				outputList(data);
+				// loadButtons();
 			}).catch(function(err) {
 				console.log(err);
 			});
 		}
 
+		function bindCheckboxJoke(listOfJokes) {
+			for(let i = 0; i < listOfJokes.length; i++) {
+				bindJokes(listOfJokes[i]);
+			} 
+		}
 
+		function bindCheckBoxFavJoke(favoriteJokes) {
+			
+			for (let i = 0; i < favoriteJokes.length; i++) {
+				bindFavoriteJokes(favoriteJokes[i]);
+			} 	 
+		}
 
+		let bindJokes = function(jokeItem) {
+			let checkbox = jokeItem.querySelector('input[type="checkbox"]');
+			checkbox.addEventListener('change', addFavorite);
+			getCheckboxes(checkbox);
+		}
 
+		let bindFavoriteJokes = function(jokeItem) {
+			let deleteButton = jokeItem.querySelector('.delete');
+			deleteButton.addEventListener('click', removeFavorite);
+		}
 
-
+		// console.log(bindCheckboxJoke());
+		let outputList = function(data) {
+			let result = '';
+			console.log(data.value);
+			data.value.forEach((joke, index) => {
+				result +=
+				`<li><input type="checkbox" class='inputCheckbox' id='${joke.id}'/> User title :  ${joke.joke}</li>`;
+				listOfJokes.innerHTML = result;
+			});
+			bindCheckboxJoke(listOfJokes.children);
+		}
+		
 		function displayFavorites() {
-			let favoriteJokes = document.getElementById('favorites');
-			let favoriteArray = listFavorite();
+			favoriteArray = listFavorite();
 			let output = "";
 
 			for (let i in favoriteArray) {
 				output += `<li><input type='button' class='delete' id='${favoriteArray[i].id}' value='remove'/></span> User title: ${favoriteArray[i].joke}</li>`;
 			}
+			
 			favoriteJokes.innerHTML = output;
 			bindCheckBoxFavJoke(favoriteJokes.children);
 		}
-
-		
 
 		function clickedButton() {
 			getJokesButton.setAttribute('disabled', 'disabled');
 			getJokesButton.classList.add('opacity');
 		}
 
-		function bindCheckboxJoke(listOfJokes) {
-			for(let i = 0; i < listOfJokes.length; i++) {
-				bindJokes(listOfJokes[i], addFavorite);
-			} 
-		}
-
-		function bindCheckBoxFavJoke(favoriteJokes) {
-			for (let i = 0; i < favoriteJokes.length; i++) {
-				bindFavoriteJokes(favoriteJokes[i], removeFavorite);
-			} 	 
-		}
+		let addEventListeners = function() {
+			const getJokesButton = document.getElementById('getData');
+			const favorites = document.getElementById('favorites');
 		
-		let bindJokes = function(jokeItem, checkBoxEventHandler) {
-			let checkbox = jokeItem.querySelector('input[type="checkbox"]');
-			checkbox.addEventListener('change', addFavorite);
-			getCheckboxes(checkbox);
-		}
-
-		let bindFavoriteJokes = function(jokeItem, checkBoxEventHandler) {
-			let deleteButton = jokeItem.querySelector('.delete');
-			deleteButton.addEventListener('click', removeFavorite);
+			getJokesButton.addEventListener('click', getData);
+			favorites.addEventListener('click', removeFavorite);
 		}
 
 		let addFavorite = function() {
@@ -94,11 +98,14 @@
 		}
 
 		let removeFavorite = function() {
-			let id = this.id;
-			let inputButton = this.parentNode.firstChild;
-			inputButton.checked = false;
-			inputButton.disabled = false;
-			removeJokeFromFavorite(id);
+			if(event.target.classList.contains('delete')) {
+				let removeItem = event.target;
+				let id = removeItem.id;
+				let inputButton = this.parentNode.firstChild;
+				inputButton.checked = false;
+				inputButton.disabled = false;
+				removeJokeFromFavorite(id);
+			}
 		}
 
 		let Item = function(jokeId, jokeText) {
@@ -135,6 +142,17 @@
 			}
 		}
 
+		let removeDisabledCheckbox = function(id) {
+			let inputs = listOfJokes.getElementsByTagName("input");
+			for(var i = 0; i < inputs.length; i++) {
+				if(inputs[i].id == id) {
+					inputs[i].removeAttribute('disabled');
+					inputs[i].checked = false;
+					break;
+				}
+			}
+		}
+
 		function removeJokeFromFavorite(id) {
 			for (let i in favorite) {
 				if(favorite[i].id === id) {
@@ -142,6 +160,7 @@
 					break;
 				}
 			}
+			removeDisabledCheckbox(id);
 			saveFavorite();
 			displayFavorites();
 		}
@@ -177,10 +196,10 @@
 		let stop = document.getElementById('stop');
 		let pause = false;
 
-		function loadButtons() {
-			start.addEventListener('click', autoAddStart);
-			stop.addEventListener('click', autoAddStop);
-		}
+		// function loadButtons() {
+		// 	start.addEventListener('click', autoAddStart);
+		// 	stop.addEventListener('click', autoAddStop);
+		// }
 		
 		let interval;
 		let speed = 1000; // speed of auto check 
@@ -200,7 +219,7 @@
 			this.id = id;
 		}
 
-		// in order to avoid resetting, you need to put the varia
+		// in order to avoid resetting, you need to put the variable
 		let array = [];
 
 		function getCheckboxes(checkbox) {

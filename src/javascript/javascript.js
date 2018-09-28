@@ -5,6 +5,8 @@
 	let favoriteJokes = document.getElementById('favorites');
 	let favorite = [];
 	let favoriteArray;
+	let autoAddJoke = false;
+	let autoCall;
 
 	function ChuckNorris() {
 		// add to empty array before it will be pushed into localStorage
@@ -26,14 +28,13 @@
 			});
 		}
 
-		function bindCheckboxJoke(listOfJokes) {
+		let bindCheckboxJoke = function(listOfJokes) {
 			for(let i = 0; i < listOfJokes.length; i++) {
 				bindJokes(listOfJokes[i]);
 			} 
 		}
 
-		function bindCheckBoxFavJoke(favoriteJokes) {
-			
+		let bindCheckBoxFavJoke = function(favoriteJokes) {
 			for (let i = 0; i < favoriteJokes.length; i++) {
 				bindFavoriteJokes(favoriteJokes[i]);
 			} 	 
@@ -53,7 +54,6 @@
 		// console.log(bindCheckboxJoke());
 		let outputList = function(data) {
 			let result = '';
-			console.log(data.value);
 			data.value.forEach((joke, index) => {
 				result +=
 				`<li><input type="checkbox" class='inputCheckbox' id='${joke.id}'/> User title :  ${joke.joke}</li>`;
@@ -61,8 +61,39 @@
 			});
 			bindCheckboxJoke(listOfJokes.children);
 		}
-		
-		function displayFavorites() {
+
+		let listFavorite = function() {
+			let favoriteCopy = [];
+			for (let i in favorite) {
+				let jokes = favorite[i];
+				let jokesCopy = {};
+
+				// using copy will avoid any strange error like accidentially overwriting some array, so therefore never use references in this case
+				for (let p in jokes) {
+					jokesCopy[p] = jokes[p];
+				}
+				favoriteCopy.push(jokesCopy);
+			}
+			return favoriteCopy;
+		}		
+
+		function clickedButton() {
+			getJokesButton.setAttribute('disabled', 'disabled');
+			getJokesButton.classList.add('opacity');
+		}
+
+		let addFavorite = function() {
+			let id = this.id;
+			console.log(this.id);
+			let joke = this.parentNode.innerText;
+			this.disabled = true;
+			if(favorite === null) {
+				favorite = [];
+			}
+			addJokeToFavorite(id, joke);
+		}
+
+		let displayFavorites = function() {
 			favoriteArray = listFavorite();
 			let output = "";
 
@@ -74,27 +105,16 @@
 			bindCheckBoxFavJoke(favoriteJokes.children);
 		}
 
-		function clickedButton() {
-			getJokesButton.setAttribute('disabled', 'disabled');
-			getJokesButton.classList.add('opacity');
-		}
-
-		let addEventListeners = function() {
-			const getJokesButton = document.getElementById('getData');
-			const favorites = document.getElementById('favorites');
-		
-			getJokesButton.addEventListener('click', getData);
-			favorites.addEventListener('click', removeFavorite);
-		}
-
-		let addFavorite = function() {
-			let id = this.id;
-			let joke = this.parentNode.innerText;
-			this.disabled = true;
-			if(favorite === null) {
-				favorite = [];
+		let removeJokeFromFavorite = function(id) {
+			for (let i in favorite) {
+				if(favorite[i].id === id) {
+					favorite.splice(i, 1);
+					break;
+				}
 			}
-			addJokeToFavorite(id, joke);
+			removeDisabledCheckbox(id);
+			saveFavorite();
+			displayFavorites();
 		}
 
 		let removeFavorite = function() {
@@ -113,7 +133,16 @@
 			this.joke = jokeText;
 		}
 
-		function addJokeToFavorite(id, joke) {
+		let disableAllInputs = function() {
+			let inputs = listOfJokes.querySelectorAll("input:not(:checked)");
+			for (let i = 0; i < inputs.length; i++) {
+				if(inputs[i].disabled == false) {
+					inputs[i].disabled = true;
+				}
+			}
+		}
+
+		let addJokeToFavorite = function(id, joke) {
 			let norrisJoke = new Item(id, joke);
 			// because it starts with null by default, you will loop through an empty list
 			const favIds = favorite.reduce((sum, element) => { 
@@ -132,16 +161,6 @@
 			displayFavorites();
 		}
 
-		function disableAllInputs() {
-			let inputs = listOfJokes.querySelectorAll("input:not(:checked)");
-			
-			for (let i = 0; i < inputs.length; i++) {
-				if(inputs[i].disabled == false) {
-					inputs[i].disabled = true;
-				}
-			}
-		}
-
 		let removeDisabledCheckbox = function(id) {
 			let inputs = listOfJokes.getElementsByTagName("input");
 			for(var i = 0; i < inputs.length; i++) {
@@ -153,32 +172,6 @@
 			}
 		}
 
-		function removeJokeFromFavorite(id) {
-			for (let i in favorite) {
-				if(favorite[i].id === id) {
-					favorite.splice(i, 1);
-					break;
-				}
-			}
-			removeDisabledCheckbox(id);
-			saveFavorite();
-			displayFavorites();
-		}
-
-		function listFavorite() {
-			let favoriteCopy = [];
-			for (let i in favorite) {
-				let jokes = favorite[i];
-				let jokesCopy = {};
-
-				// using copy will avoid any strange error like accidentially overwriting some array, so therefore never use references in this case
-				for (let p in jokes) {
-					jokesCopy[p] = jokes[p];
-				}
-				favoriteCopy.push(jokesCopy);
-			}
-			return favoriteCopy;
-		}		
 
 		function saveFavorite() {
 			localStorage.setItem('favoList', JSON.stringify(favorite));
@@ -191,28 +184,39 @@
 		// You have to load the JSOn of course before 
 		loadFavorites();
 		displayFavorites();
-
-		let start = document.getElementById('start');
-		let stop = document.getElementById('stop');
-		let pause = false;
-
-		// function loadButtons() {
-		// 	start.addEventListener('click', autoAddStart);
-		// 	stop.addEventListener('click', autoAddStop);
-		// }
 		
 		let interval;
 		let speed = 1000; // speed of auto check 
 
-		function autoAddStart() {
-			interval = setInterval(autoRandom, speed);	
-			return false;
+		function autoAdd() {
+			console.log('add');
+			let inputs = listOfJokes.querySelectorAll("input:not(:checked)");
+			let pickRandomJoke = inputs[Math.floor(Math.random() * inputs.length)];
+			let id = pickRandomJoke.id;
+			console.log(id);
+			let joke = pickRandomJoke.parentNode.innerText;
+
+			if(inputs.length === 0) return;
+			pickRandomJoke.disabled = true;
+			pickRandomJoke.checked = true;
+			if(favorite === null) {
+				favorite = [];
+			}
+			addJokeToFavorite(id, joke);
+		}
+
+		let autoAddStart = function() {
+			autoAddJoke = true;
+			if(autoAddJoke) {
+				autoCall = setInterval(autoAdd, 5000);
+			}
 		}
 
 		function autoAddStop() {
-			clearInterval(interval);
-			return false;
+			clearInterval(autoCall);
+			autoAddJoke = false;
 		}
+
 
 		// create new item so it would not iterate constantly like add 1, 1 and 2, 1, 2 and 3 and so on
 		let RandomAdd = function(id) {
@@ -240,6 +244,17 @@
 			array.splice(index, 1);
 			jokeElement.click();
 		}	
+		let addEventListeners = function() {
+			const start = document.getElementById('start');
+			const stop = document.getElementById('stop');
+			const getJokesButton = document.getElementById('getData');
+			const favorites = document.getElementById('favorites');
+		
+			getJokesButton.addEventListener('click', getData);
+			favorites.addEventListener('click', removeFavorite);
+			start.addEventListener('click', autoAddStart);
+			stop.addEventListener('click', autoAddStop);
+		}
 	}
 
 	let chuckNorris = new ChuckNorris();
